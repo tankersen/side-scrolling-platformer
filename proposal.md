@@ -25,7 +25,7 @@ Ideal Outcome:
 - Player character and environment have custom art/animations and player is able to play the level to reach a win condition
 
 Minimal Viable Outcome:
-- Player is able to move around the environment and avoid 
+- Player is able to move around the environment and avoid obstacles
 
 ## Milestones
 
