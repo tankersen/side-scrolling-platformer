@@ -1,41 +1,42 @@
-# Title
+# Side Scrolling Platformer
 
 ## Repository
-<Link to your project's public GitHub respository>
+https://github.com/tankersen/side-scrolling-platformer.git
 
 ## Description
+2D Platformer game that 
 1-2 sentence description of what it will do and how it relevant to media and digital arts.
 
 ## Features
-- Feature 1
-	- Short explaination of how it will be executed.
-- Feature 2
-	- Short explaination of how it will be executed.
-- Feature N 
-	- Short explaination of how it will be executed.
+- Double Jump
+	- Check if player character is in the air and only jumped once, allow another jump if jump == 1
+- Scrolling Screen
+	- Check when player character is close to the edge of the screen and offset screen in the correct direction
+- Player Damage/Enemy Object
+	- Define the enemy class and deal damage when player collides
 
 ## Challenges
-- Short sentence of any skill or topic that needs to be learnt or researched.
-- Short sentence of any skill or topic that needs to be learnt or researched.
-- Short sentence of any skill or topic that needs to be learnt or researched.
+- Understanding how to implement gravity for the jump mechanic
+- Learning how to implement a background that will work with the scrolling function
+- Understanding how to implement player collision with environment and enemies 
 
 ## Outcomes
 Ideal Outcome:
-- Briefly describe what is the ideal outcome?
+- Player character and environment have custom art/animations and player is able to play the level to reach a win condition
 
 Minimal Viable Outcome:
-- Briefly describe the bare essential for a good working outcome?
+- Player is able to move around the environment and avoid 
 
 ## Milestones
 
 - Week 1
-  1. Goal 1
-  2. Goal 2
+  1. Base Game Setup
+  2. Basic Player and Background Implementation
 
 - Week 2
-  1. Goal 1
-  2. Goal 2
+  1. Terrain and Collision
+  2. Scrolling Camera
 
 - Week N (Final)
-  1. Goal 1
-  2. Goal 2
+  1. Enemy Objects
+  2. Art Pass
