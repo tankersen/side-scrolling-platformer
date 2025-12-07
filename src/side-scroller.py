@@ -76,6 +76,8 @@ class Player(pygame.sprite.Sprite):
         self.jump_count = 0
         self.hit = False
         self.hit_count = 0
+        self.health = 100
+        self.font = pygame.font.Font('arial.ttf', 32)
 
     def jump(self):
         self.y_vel = -self.GRAVITY * 8
@@ -91,8 +93,24 @@ class Player(pygame.sprite.Sprite):
 
     def make_hit(self):
         self.hit = True
+        self.health = self.health - 25
+        print(self.health)
         self.hit_count = 0
 
+    def death(self):
+        text = self.font.render('Game Over', True, WHITE)
+        text_rect = text.get_rect()
+
+        for sprite in self.sprites:
+            sprite.kill
+
+        while self.running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+
+            
+        
     def move_left(self, vel):
         self.x_vel = -vel
         if self.direction != "left":
@@ -111,7 +129,7 @@ class Player(pygame.sprite.Sprite):
 
         if self.hit:
             self.hit_count += 1
-        if self.hit_count > fps * 2:
+        if self.hit_count > fps * 0.5:
             self.hit = False
             self.hit_count = 0
 
@@ -131,17 +149,16 @@ class Player(pygame.sprite.Sprite):
         sprite_sheet = "idle"
         if self.hit:
             sprite_sheet = "hit"
-        if self.y_vel != 0:
+        elif self.y_vel < 0:
             if self.jump_count == 1:
                 sprite_sheet = "jump"
             elif self.jump_count == 2:
                 sprite_sheet = "double_jump"
-                
         elif self.y_vel > self.GRAVITY * 2:
             sprite_sheet = "fall"
-
         elif self.x_vel != 0:
             sprite_sheet = "run"
+
 
         sprite_sheet_name = sprite_sheet + "_" + self.direction
         sprites = self.SPRITES[sprite_sheet_name]
@@ -179,6 +196,37 @@ class Block(Object):
         self.image.blit(block,(0,0))
         self.mask = pygame.mask.from_surface(self.image)
 
+
+class Trampoline(Object):
+    ANIMATION_DELAY = 3
+
+    def __init__(self,x,y,width,height):
+        super().__init__(x,y,width,height, "trampoline")
+        self.trampoline = load_sprite_sheets("Traps", "Trampoline", width, height)
+        self.image = self.trampoline["off"][0]
+        self.mask = pygame.mask.from_surface(self.image)
+        self.animation_sount = 0
+        self.animation_name = "off"
+
+    def off(self):
+        self.animation_name = "off"
+
+    def jump(self):
+        self.animation_name = "Jump"
+
+    def loop(self):
+        sprites = self.trampoline[self.animation_name]
+        sprite_index = (self.animation_count // self.ANIMATION_DELAY % len(sprites))
+        self.image = sprites[sprite_index]
+        self.animation_count += 1
+
+        self.rect = self.image.get_rect(topleft=(self.rect.x, self.rect.y))
+        self.mask = pygame.mask.from_surface(self.image)
+
+        if self.animation_count // self.ANIMATION_DELAY > len(sprites):
+            self.animation_count = 0
+
+
 class Fire(Object):
     ANIMATION_DELAY = 3
 
@@ -210,6 +258,8 @@ class Fire(Object):
         if self.animation_count // self.ANIMATION_DELAY > len(sprites):
             self.animation_count = 0
 
+        
+
 
 def get_background(name):
     image = pygame.image.load(join("assets","Background",name))
@@ -233,6 +283,7 @@ def draw(window,background, bg_image, player, objects, offset_x):
     player.draw(window, offset_x)
 
     pygame.display.update()
+
 
 
 def handle_vertical_collision(player, objects, dy):
@@ -286,14 +337,18 @@ def handle_move(player, objects):
 def main(window):
     clock = pygame.time.Clock()
     background, bg_image = get_background("Blue.png")
+    player_input_enabled = True
 
     block_size = 96
 
     player = Player(100,100, 50, 50)
-    fire = Fire(100,HEIGHT - block_size - 64,16,32)
+    fire = Fire(200,HEIGHT - block_size - 64,16,32)
     fire.on()
+    trampoline = Trampoline(100, HEIGHT - block_size - 64,16,64)
+    trampoline.off()
+    l_platform = [Block(block_size, HEIGHT-block_size * 3, block_size),Block(block_size*2, HEIGHT-block_size * 3, block_size)]
     floor = [Block(i*block_size, HEIGHT - block_size, block_size) for i in range(-WIDTH // block_size, WIDTH * 2 // block_size)]
-    objects = [*floor, Block(0,HEIGHT - block_size * 2, block_size),  Block(block_size * 3, HEIGHT - block_size * 4, block_size),fire]
+    objects = [*floor, trampoline, Block(0,HEIGHT - block_size * 2, block_size),  Block(block_size * 3, HEIGHT - block_size * 4, block_size),fire]
 
 
     offset_x = 0
@@ -310,9 +365,17 @@ def main(window):
                 run = False
                 break
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and player.jump_count < 2:
-                    player.jump()
+            if player_input_enabled:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE and player.jump_count < 2:
+                        player.jump()
+
+            if player.death():
+                player_input_enabled = False
+                pygame.K_a = 0
+                pygame.K_d = 0
+      
+
 
         player.loop(fps)
         fire.loop()
