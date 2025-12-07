@@ -6,6 +6,7 @@
 import os
 import random
 import math
+
 import pygame
 from os import listdir
 from os.path import isfile, join
@@ -17,6 +18,7 @@ bg_color = (255,255,255)
 WIDTH, HEIGHT = 1920, 1080
 fps = 60
 player_velocity = 5
+font = pygame.font.Font(None,74)
 
 window = pygame.display.set_mode((WIDTH,HEIGHT))
 
@@ -77,7 +79,8 @@ class Player(pygame.sprite.Sprite):
         self.hit = False
         self.hit_count = 0
         self.health = 100
-        self.font = pygame.font.Font('arial.ttf', 32)
+        self.is_alive = True
+        self.go_background = pygame.image.load("assets/Background/Yellow.png")
 
     def jump(self):
         self.y_vel = -self.GRAVITY * 8
@@ -98,18 +101,10 @@ class Player(pygame.sprite.Sprite):
         self.hit_count = 0
 
     def death(self):
-        text = self.font.render('Game Over', True, WHITE)
-        text_rect = text.get_rect()
-
-        for sprite in self.sprites:
-            sprite.kill
-
-        while self.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-
-            
+        if self.health <= 0:
+            self.is_alive = False
+            return True
+        return False
         
     def move_left(self, vel):
         self.x_vel = -vel
@@ -338,6 +333,7 @@ def main(window):
     clock = pygame.time.Clock()
     background, bg_image = get_background("Blue.png")
     player_input_enabled = True
+    player_is_alive = True
 
     block_size = 96
 
@@ -370,11 +366,21 @@ def main(window):
                     if event.key == pygame.K_SPACE and player.jump_count < 2:
                         player.jump()
 
-            if player.death():
-                player_input_enabled = False
-                pygame.K_a = 0
-                pygame.K_d = 0
-      
+
+        if player.health <= 0 and player_is_alive:
+            player_is_alive = False
+            player_input_enabled = False  
+
+        if not player_is_alive:
+            player_input_enabled = False
+
+            window.fill((0,0,0))
+
+            game_over_text = font.render("GAME OVER", True, (255,0,0))
+            game_over_rect = game_over_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 50))
+            window.blit(game_over_text, game_over_rect)
+            pygame.display.update()
+            continue
 
 
         player.loop(fps)
