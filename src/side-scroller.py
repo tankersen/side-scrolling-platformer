@@ -196,6 +196,7 @@ class Fruit(Object):
         player.health += 10
         if player.health > 100:
             player.health = 100
+
         print(player.health)
 
 
@@ -370,7 +371,7 @@ def main(window):
 
     fruit = Fruit(600, HEIGHT - block_size - 64, 32)
 
-    trampoline = Trampoline(100, HEIGHT - block_size - 64,16,64)
+    trampoline = Trampoline(block_size, HEIGHT - block_size - 54,28,32)
     trampoline.off()
 
     
