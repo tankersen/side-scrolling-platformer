@@ -206,8 +206,14 @@ class Trampoline(Object):
     def off(self):
         self.animation_name = "off"
 
-    def jump(self):
+    def jump(self,player):
         self.animation_name = "Jump"
+        player.y_vel = -player.GRAVITY * 10
+        player.animation_count = 0
+        player.jump_count = 1
+        player.fall_count = 0
+
+        
 
     def loop(self):
         sprites = self.trampoline[self.animation_name]
@@ -215,7 +221,7 @@ class Trampoline(Object):
         self.image = sprites[sprite_index]
         self.animation_count += 1
 
-        self.rect = self.image.get_rect(topleft=(self.rect.x, self.rect.y))
+        self.rect.topleft = (self.rect.x, self.rect.y)
         self.mask = pygame.mask.from_surface(self.image)
 
         if self.animation_count // self.ANIMATION_DELAY > len(sprites):
@@ -327,6 +333,8 @@ def handle_move(player, objects):
     for obj in to_check:
         if obj and obj.name == "fire":
             player.make_hit()
+        if obj and obj.name == "trampoline":
+            obj.jump(player) 
 
 
 def main(window):
@@ -337,7 +345,7 @@ def main(window):
 
     block_size = 96
 
-    player = Player(100,100, 50, 50)
+    player = Player(0,800, 50, 50)
     fire = Fire(200,HEIGHT - block_size - 64,16,32)
     fire.on()
     trampoline = Trampoline(100, HEIGHT - block_size - 64,16,64)
@@ -374,7 +382,7 @@ def main(window):
         if not player_is_alive:
             player_input_enabled = False
 
-            window.fill((0,0,0))
+            window.fill((0,255,255))
 
             game_over_text = font.render("GAME OVER", True, (255,0,0))
             game_over_rect = game_over_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 50))
