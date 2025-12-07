@@ -81,6 +81,7 @@ class Player(pygame.sprite.Sprite):
         self.health = 100
         self.is_alive = True
         self.go_background = pygame.image.load("assets/Background/Yellow.png")
+        self.win = False
 
     def jump(self):
         self.y_vel = -self.GRAVITY * 8
@@ -211,9 +212,13 @@ class Block(Object):
 class End(Object):
     def __init__(self,x,y,width,height):
         super().__init__(x,y,width,height, "end")
-        self.finish = load_sprite_sheets("Items", "End", width, height)
-        self.image = self.finish["End(Idle)"][0]
+        self.name = "end"
+        self.end = load_sprite_sheets("Items", "Checkpoints", width, height)
+        self.image = self.end["End (Idle)"][0]
         self.mask = pygame.mask.from_surface(self.image)
+
+    def Win_State(self, player):
+        player.win = True
 
 #unique feature: trampoline that launches player higher than normal jump
 class Trampoline(Object):
@@ -363,6 +368,8 @@ def handle_move(player, objects):
         if obj and obj.name == "fruit":
             obj.eat(player)
             objects.remove(obj)
+        if obj and obj.name == "end":
+            obj.Win_State(player)
 
 
 def main(window):
@@ -370,6 +377,8 @@ def main(window):
     background, bg_image = get_background("Blue.png")
     player_input_enabled = True
     player_is_alive = True
+    player_win = False
+
 
     block_size = 96
 
@@ -382,14 +391,14 @@ def main(window):
 
     trampolines = [Trampoline(block_size*1.7, HEIGHT - block_size - 54,28,32), Trampoline(block_size*10, HEIGHT - block_size - 54,28,32)]
 
-
+    end = End(1500,HEIGHT - block_size*2.3,64,64)
 
     platform1 = [Block(block_size * 3, HEIGHT - block_size * 4, block_size),Block(block_size * 4, HEIGHT - block_size * 4, block_size),Block(block_size * 5, HEIGHT - block_size * 4, block_size)]
     platform2 = [Block(block_size * 7, HEIGHT - block_size * 4, block_size),Block(block_size * 8, HEIGHT - block_size * 4, block_size)]
     platform3 = [Block(block_size * 12, HEIGHT - block_size * 4, block_size),Block(block_size * 13, HEIGHT - block_size * 4, block_size),Block(block_size * 14, HEIGHT - block_size * 4, block_size)]
     l_platform = [Block(block_size, HEIGHT-block_size * 3, block_size),Block(block_size*2, HEIGHT-block_size * 3, block_size)]
     floor = [Block(i*block_size, HEIGHT - block_size, block_size) for i in range(-WIDTH // block_size, WIDTH * 2 // block_size)]
-    objects = [*floor, *trampolines, *platform3, fruit,Block(0,HEIGHT - block_size * 2, block_size),*fires, *platform1, *platform2]
+    objects = [*floor, *trampolines,end, *platform3, fruit,Block(0,HEIGHT - block_size * 2, block_size),*fires, *platform1, *platform2]
 
 
     offset_x = 0
@@ -426,7 +435,15 @@ def main(window):
             window.blit(game_over_text, game_over_rect)
             pygame.display.update()
             continue
+# unique feature: created win screen when player collides withh end_object
+        if player.win == True:
+            window.fill((80,200,120))
 
+            win_text = font.render("YOU WIN! :)", True, (255,255,255))
+            win_rect = win_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 50))
+            window.blit(win_text, win_rect)
+            pygame.display.update()
+            continue
 
 
         player.loop(fps)
