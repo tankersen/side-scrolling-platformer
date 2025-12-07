@@ -187,6 +187,7 @@ class Object(pygame.sprite.Sprite):
 class Fruit(Object):
     def __init__(self, x, y, size):
         super().__init__(x,y,size,size)
+        self.name = "fruit"
         self.fruit = load_sprite_sheets("Items", "Fruits", size, size)
         self.image = self.fruit["Strawberry"][0]
         self.mask = pygame.mask.from_surface(self.image)
@@ -205,6 +206,13 @@ class Block(Object):
         super().__init__(x,y,size,size)
         block = get_block(size)
         self.image.blit(block,(0,0))
+        self.mask = pygame.mask.from_surface(self.image)
+
+class End(Object):
+    def __init__(self,x,y,width,height):
+        super().__init__(x,y,width,height, "end")
+        self.finish = load_sprite_sheets("Items", "End", width, height)
+        self.image = self.finish["End(Idle)"][0]
         self.mask = pygame.mask.from_surface(self.image)
 
 #unique feature: trampoline that launches player higher than normal jump
@@ -254,7 +262,7 @@ class Fire(Object):
         self.image = self.fire["off"][0]
         self.mask = pygame.mask.from_surface(self.image)
         self.animation_count = 0
-        self.animation_name = "off"
+        self.animation_name = "on"
 
     def on(self):
         self.animation_name = "on"
@@ -347,6 +355,7 @@ def handle_move(player, objects):
     vertical_collide = handle_vertical_collision(player, objects, player.y_vel)
     to_check = [collide_left, collide_right, *vertical_collide]
     for obj in to_check:
+
         if obj and obj.name == "fire":
             player.make_hit()
         if obj and obj.name == "trampoline":
@@ -366,19 +375,21 @@ def main(window):
 
     player = Player(0,800, 50, 50)
 
-    fire = Fire(200,HEIGHT - block_size - 64,16,32)
-    fire.on()
+    fires = [Fire(530,HEIGHT - block_size * 4.65,16,32),Fire(1070,HEIGHT - block_size -64,16,32)]
 
-    fruit = Fruit(600, HEIGHT - block_size - 64, 32)
 
-    trampoline = Trampoline(block_size, HEIGHT - block_size - 54,28,32)
-    trampoline.off()
+    fruit = Fruit(block_size*13.2, HEIGHT - block_size *6, 32)
 
-    
+    trampolines = [Trampoline(block_size*1.7, HEIGHT - block_size - 54,28,32), Trampoline(block_size*10, HEIGHT - block_size - 54,28,32)]
 
+
+
+    platform1 = [Block(block_size * 3, HEIGHT - block_size * 4, block_size),Block(block_size * 4, HEIGHT - block_size * 4, block_size),Block(block_size * 5, HEIGHT - block_size * 4, block_size)]
+    platform2 = [Block(block_size * 7, HEIGHT - block_size * 4, block_size),Block(block_size * 8, HEIGHT - block_size * 4, block_size)]
+    platform3 = [Block(block_size * 12, HEIGHT - block_size * 4, block_size),Block(block_size * 13, HEIGHT - block_size * 4, block_size),Block(block_size * 14, HEIGHT - block_size * 4, block_size)]
     l_platform = [Block(block_size, HEIGHT-block_size * 3, block_size),Block(block_size*2, HEIGHT-block_size * 3, block_size)]
     floor = [Block(i*block_size, HEIGHT - block_size, block_size) for i in range(-WIDTH // block_size, WIDTH * 2 // block_size)]
-    objects = [*floor, trampoline, fruit,Block(0,HEIGHT - block_size * 2, block_size),  Block(block_size * 3, HEIGHT - block_size * 4, block_size),fire]
+    objects = [*floor, *trampolines, *platform3, fruit,Block(0,HEIGHT - block_size * 2, block_size),*fires, *platform1, *platform2]
 
 
     offset_x = 0
@@ -408,17 +419,19 @@ def main(window):
         if not player_is_alive:
             player_input_enabled = False
 
-            window.fill((0,255,255))
+            window.fill((128,0,128))
 
-            game_over_text = font.render("GAME OVER", True, (255,0,0))
+            game_over_text = font.render("GAME OVER", True, (255,255,255))
             game_over_rect = game_over_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 50))
             window.blit(game_over_text, game_over_rect)
             pygame.display.update()
             continue
 
 
+
         player.loop(fps)
-        fire.loop()
+        for fire in fires:
+            fire.loop()
         handle_move(player, objects)
 
         draw(window, background, bg_image, player, objects, offset_x)
