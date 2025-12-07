@@ -209,6 +209,7 @@ class Block(Object):
         self.image.blit(block,(0,0))
         self.mask = pygame.mask.from_surface(self.image)
 
+#unique feature: win state object and screen
 class End(Object):
     def __init__(self,x,y,width,height):
         super().__init__(x,y,width,height, "end")
@@ -377,7 +378,7 @@ def main(window):
     background, bg_image = get_background("Blue.png")
     player_input_enabled = True
     player_is_alive = True
-    player_win = False
+
 
 
     block_size = 96
@@ -420,6 +421,13 @@ def main(window):
                     if event.key == pygame.K_SPACE and player.jump_count < 2:
                         player.jump()
 
+#unique feature: player health and ui
+        if player_is_alive:
+            health_rect = pygame.Rect(100,100,100,50)
+            health_text = font.render(str(player.health), True, (255,255,255))
+            window.blit(health_text, (100,100))
+            pygame.display.update(health_rect)
+
 #unique feature: created game over screen when player health reaches 0
         if player.health <= 0 and player_is_alive:
             player_is_alive = False
@@ -435,7 +443,7 @@ def main(window):
             window.blit(game_over_text, game_over_rect)
             pygame.display.update()
             continue
-# unique feature: created win screen when player collides withh end_object
+# unique feature: created win screen when player collides with end_object
         if player.win == True:
             window.fill((80,200,120))
 
