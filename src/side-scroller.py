@@ -422,7 +422,7 @@ def main(window):
                         player.jump()
 
 #unique feature: player health and ui
-        if player_is_alive:
+        if player_is_alive and not player.win:
             health_rect = pygame.Rect(100,100,100,50)
             health_text = font.render(str(player.health), True, (255,255,255))
             window.blit(health_text, (100,100))
