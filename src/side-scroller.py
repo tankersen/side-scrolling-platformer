@@ -183,6 +183,21 @@ class Object(pygame.sprite.Sprite):
     def draw(self,win, offset_x):
         win.blit(self.image, (self.rect.x - offset_x, self.rect.y))
 
+#unique feature: fruit that restores player health when collected
+class Fruit(Object):
+    def __init__(self, x, y, size):
+        super().__init__(x,y,size,size)
+        self.fruit = load_sprite_sheets("Items", "Fruits", size, size)
+        self.image = self.fruit["Strawberry"][0]
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+    def eat(self, player):
+        player.health += 10
+        if player.health > 100:
+            player.health = 100
+        print(player.health)
+
 
 class Block(Object):
     def __init__(self, x, y, size):
@@ -191,7 +206,7 @@ class Block(Object):
         self.image.blit(block,(0,0))
         self.mask = pygame.mask.from_surface(self.image)
 
-
+#unique feature: trampoline that launches player higher than normal jump
 class Trampoline(Object):
     ANIMATION_DELAY = 3
 
@@ -200,7 +215,7 @@ class Trampoline(Object):
         self.trampoline = load_sprite_sheets("Traps", "Trampoline", width, height)
         self.image = self.trampoline["off"][0]
         self.mask = pygame.mask.from_surface(self.image)
-        self.animation_sount = 0
+        self.animation_count = 0
         self.animation_name = "off"
 
     def off(self):
@@ -335,6 +350,9 @@ def handle_move(player, objects):
             player.make_hit()
         if obj and obj.name == "trampoline":
             obj.jump(player) 
+        if obj and obj.name == "fruit":
+            obj.eat(player)
+            objects.remove(obj)
 
 
 def main(window):
@@ -346,13 +364,20 @@ def main(window):
     block_size = 96
 
     player = Player(0,800, 50, 50)
+
     fire = Fire(200,HEIGHT - block_size - 64,16,32)
     fire.on()
+
+    fruit = Fruit(600, HEIGHT - block_size - 64, 32)
+
     trampoline = Trampoline(100, HEIGHT - block_size - 64,16,64)
     trampoline.off()
+
+    
+
     l_platform = [Block(block_size, HEIGHT-block_size * 3, block_size),Block(block_size*2, HEIGHT-block_size * 3, block_size)]
     floor = [Block(i*block_size, HEIGHT - block_size, block_size) for i in range(-WIDTH // block_size, WIDTH * 2 // block_size)]
-    objects = [*floor, trampoline, Block(0,HEIGHT - block_size * 2, block_size),  Block(block_size * 3, HEIGHT - block_size * 4, block_size),fire]
+    objects = [*floor, trampoline, fruit,Block(0,HEIGHT - block_size * 2, block_size),  Block(block_size * 3, HEIGHT - block_size * 4, block_size),fire]
 
 
     offset_x = 0
@@ -374,7 +399,7 @@ def main(window):
                     if event.key == pygame.K_SPACE and player.jump_count < 2:
                         player.jump()
 
-
+#unique feature: created game over screen when player health reaches 0
         if player.health <= 0 and player_is_alive:
             player_is_alive = False
             player_input_enabled = False  
