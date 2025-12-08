@@ -399,7 +399,7 @@ def main(window):
     platform3 = [Block(block_size * 12, HEIGHT - block_size * 4, block_size),Block(block_size * 13, HEIGHT - block_size * 4, block_size),Block(block_size * 14, HEIGHT - block_size * 4, block_size)]
     l_platform = [Block(block_size, HEIGHT-block_size * 3, block_size),Block(block_size*2, HEIGHT-block_size * 3, block_size)]
     floor = [Block(i*block_size, HEIGHT - block_size, block_size) for i in range(-WIDTH // block_size, WIDTH * 2 // block_size)]
-    objects = [*floor, *trampolines,end, *platform3, fruit,Block(0,HEIGHT - block_size * 2, block_size),*fires, *platform1, *platform2,]
+    objects = [*floor, *trampolines,end, *platform3, fruit,Block(0,HEIGHT - block_size * 2, block_size),*fires, *platform1, *platform2]
 
 
     offset_x = 0
@@ -423,9 +423,9 @@ def main(window):
 
 #unique feature: player health and ui
         if player_is_alive and not player.win:
-            health_rect = pygame.Rect(30,30,100,50)
+            health_rect = pygame.Rect(100,100,100,50)
             health_text = font.render(str(player.health), True, (255,255,255))
-            window.blit(health_text, (30,30))
+            window.blit(health_text, (100,100))
             pygame.display.update(health_rect)
 
 #unique feature: created game over screen when player health reaches 0
@@ -459,7 +459,7 @@ def main(window):
             fire.loop()
         handle_move(player, objects)
 
-        draw(window, background, bg_image, player, objects, offset_x,)
+        draw(window, background, bg_image, player, objects, offset_x)
 
         if ((player.rect.right - offset_x >= WIDTH - scroll_area_width) and player.x_vel > 0) or(
                 (player.rect.left - offset_x <= scroll_area_width) and player.x_vel<0):
